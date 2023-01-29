@@ -30,21 +30,26 @@ def handle_start_help(message: telebot.types.Message):
 @bot.message_handler(content_types=['text'])
 def handle_text(message: telebot.types.Message):
     # есть рубль (quote), покупаю доллар (base) 100 единиц (amount)
-    values = message.text.split(" ")
+    try:
+        values = message.text.split(" ")
 
-    if len(values) != 3:
-        raise ExceptionHandling('Количество параметров должно быть равно трём.')
+        if len(values) != 3:
+            raise ExceptionHandling('Количество параметров должно быть равно трём.')
 
-    quote, base, amount = values
-
-    total_base = CurrencyConverter.convert(quote, base, amount)
-    text = f'Текущий курс: {amount} {keys[quote]} = {total_base} {keys[base]}'
-    bot.send_message(message.chat.id, text)
+        quote, base, amount = values
+        total_base = CurrencyConverter.convert(quote, base, amount)
+    except ExceptionHandling as e:
+        bot.reply_to(message, f"Ошибка пользователя\n{e}")
+    except Exception as e:
+        bot.reply_to(message, f"Не удалось обработать команду\n{e}")
+    else:
+        text = f'Текущий курс: {amount} {keys[quote]} = {total_base} {keys[base]}'
+        bot.send_message(message.chat.id, text)
 
 
 @bot.message_handler(content_types=['photo'])
 def handle_photo(message: telebot.types.Message):
-    bot.reply_to(message, "Ха-ха, какая глупая картинка")
+    bot.reply_to(message, "Ха-ха, какая глупая картинка!")
 
 
 bot.polling(none_stop=True)  # команда запуска бота
